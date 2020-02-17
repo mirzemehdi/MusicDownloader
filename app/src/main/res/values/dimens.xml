@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+
+    <dimen name="row_musicName_textSize">18sp</dimen>
+    <dimen name="row_artistName_textSize">16sp</dimen>
+    <dimen name="row_music_imageWidthHeight">45dp</dimen>
+    <dimen name="toolbar_textSize">24sp</dimen>
+</resources>

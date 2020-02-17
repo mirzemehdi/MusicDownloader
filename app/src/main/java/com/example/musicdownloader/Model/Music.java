@@ -12,14 +12,23 @@ public class Music {
     private int id;
     private String artistName;
     private String musicName;
+    private boolean isDownloaded;
 
-    public Music() {
 
-    }
+
 
     public Music(String artistName, String musicName) {
         this.artistName = artistName;
         this.musicName = musicName;
+        isDownloaded=false;
+    }
+
+    public boolean isDownloaded() {
+        return isDownloaded;
+    }
+
+    public void setDownloaded(boolean musicDownloaded) {
+        isDownloaded = musicDownloaded;
     }
 
     public int getId() {
