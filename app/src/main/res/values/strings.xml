@@ -3,4 +3,5 @@
     <string name="favoriteMusicToolbar">Favorite Tracks</string>
     <string name="toast_music_downloaded">This music has already been downloaded</string>
     <string name="toast_music_one_download">You can download only 1 music at the same time</string>
+    <string name="toast_music_download_finished">is downloaded</string>
 </resources>

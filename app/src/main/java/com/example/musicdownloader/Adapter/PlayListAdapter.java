@@ -12,6 +12,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app.adprogressbarlib.AdCircleProgress;
@@ -26,17 +28,30 @@ import java.util.List;
 
 import butterknife.BindColor;
 
-public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.PlayListViewHolder> {
+public class PlayListAdapter extends ListAdapter<Music, PlayListAdapter.PlayListViewHolder> {
 
     private List<Music> musicList=new ArrayList<>();
     private Context context;
     private DownloadClickListener downloadClickListener;
-    private int lastDownloadPos;
+
 
     public PlayListAdapter( Context context) {
+        super(itemCallback);
         this.context = context;
-        lastDownloadPos=0;
     }
+
+    private static final DiffUtil.ItemCallback<Music> itemCallback=new DiffUtil.ItemCallback<Music>() {
+        @Override
+        public boolean areItemsTheSame(@NonNull Music oldItem, @NonNull Music newItem) {
+            return oldItem.getId()==newItem.getId();
+        }
+
+        @Override
+        public boolean areContentsTheSame(@NonNull Music oldItem, @NonNull Music newItem) {
+            return (oldItem.getId()==newItem.getId())
+                    &&(oldItem.getDownloadProgress()==newItem.getDownloadProgress());
+        }
+    };
 
     @NonNull
     @Override
@@ -48,12 +63,9 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.PlayLi
 
     @Override
     public void onBindViewHolder(@NonNull PlayListViewHolder holder, int position) {
-        Music music=musicList.get(position);
+        Music music=getItem(position);
         holder.musicNameTxt.setText(music.getMusicName());
         holder.artistNameTxt.setText(music.getArtistName());
-        holder.musicDownloadBtn.setVisibility(View.VISIBLE);
-        holder.musicDownloadProgress.setVisibility(View.INVISIBLE);
-        holder.musicCardView.setCardBackgroundColor(context.getResources().getColor(R.color.colorPrimary));
 
 
         if (music.isDownloaded()) {
@@ -63,8 +75,28 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.PlayLi
             holder.musicDownloadBtn.setImageTintList(ContextCompat.getColorStateList(context, R.color.colorGreen));
         }
         else {
+            if (music.getDownloadProgress()==0) {
+                holder.musicDownloadProgress.setVisibility(View.INVISIBLE);
+                holder.musicDownloadBtn.setVisibility(View.VISIBLE);
+                holder.musicCardView.setCardBackgroundColor(context.getResources().getColor(R.color.colorPrimary));
+                holder.musicDownloadBtn.setBackgroundResource(R.drawable.circle_gradient);
+                holder.musicDownloadBtn.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_file_download));
+                holder.musicDownloadBtn.setImageTintList(ContextCompat.getColorStateList(context, R.color.colorAccent));
+            }
+            else {
 
-            holder.musicDownloadBtn.setImageTintList(ContextCompat.getColorStateList(context, R.color.colorAccent));
+                holder.musicDownloadBtn.setVisibility(View.INVISIBLE);
+
+                holder.musicDownloadProgress.setVisibility(View.VISIBLE);
+                holder.musicCardView.setCardBackgroundColor(context.getResources().getColor(R.color.colorDividerLine));
+                if (holder.musicDownloadProgress.getAttributeResourceId()==R.drawable.ic_pause) {
+                    holder.musicDownloadProgress.setAdProgress(music.getDownloadProgress());
+                }
+
+
+            }
+
+
         }
 
 
@@ -72,85 +104,18 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.PlayLi
 
     }
 
-    @Override
-    public int getItemCount() {
-        return musicList.size();
-    }
+
 
     @Override
     public int getItemViewType(int position) {
         return position;
     }
 
-    public void setMusicList(List<Music>musicList){
-        this.musicList=musicList;
-        notifyDataSetChanged();
-    }
+
     public void setDownloadClickListener(DownloadClickListener listener){
         this.downloadClickListener=listener;
     }
 
-    public boolean updateProgressBarValue(RecyclerView recyclerView,int position,int percentage){
-//        int position=0;
-//        for (Music music1:musicList){
-//            if (music1.getId()==music.getId()){
-//                break;
-//            }
-//             position++;
-//        }
-//        Log.d("Postion: ",""+position);
-        PlayListViewHolder viewHolder=(PlayListViewHolder) recyclerView.findViewHolderForAdapterPosition(position);
-
-        if (viewHolder!=null) {
-
-            viewHolder.musicDownloadBtn.setVisibility(View.INVISIBLE);
-
-            viewHolder.musicDownloadProgress.setVisibility(View.VISIBLE);
-            viewHolder.musicCardView.setCardBackgroundColor(context.getResources().getColor(R.color.colorDividerLine));
-
-
-            viewHolder.musicDownloadProgress.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                    if (viewHolder.musicDownloadProgress.getAttributeResourceId()==R.drawable.ic_pause){
-                        viewHolder.musicDownloadProgress.setAttributeResourceId(R.drawable.ic_play);
-                        notifyDataSetChanged();
-
-                    }
-                    else
-                       viewHolder.musicDownloadProgress.setAttributeResourceId(R.drawable.ic_pause);
-
-                }
-            });
-
-            if (viewHolder.musicDownloadProgress.getAttributeResourceId()==R.drawable.ic_pause) {
-                viewHolder.musicDownloadProgress.setAdProgress(percentage);
-                return true;
-            }
-            else
-                return false;
-
-        }
-        return false;
-
-    }
-
-    public void moveItem(int fromPosition,int toPosition){
-        Music music=musicList.get(fromPosition);
-        musicList.remove(fromPosition);
-        musicList.add(lastDownloadPos, music);
-        notifyItemMoved(fromPosition, lastDownloadPos++);
-
-    }
-
-    public int getLastDownloadPos() {
-        return lastDownloadPos;
-    }
-
-    public void setLastDownloadPos(int lastDownloadPos) {
-        this.lastDownloadPos = lastDownloadPos;
-    }
 
     public class PlayListViewHolder extends RecyclerView.ViewHolder {
         private TextView musicNameTxt,artistNameTxt;
@@ -170,9 +135,25 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.PlayLi
             musicDownloadBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (downloadClickListener!=null)
-                        downloadClickListener.onClick(getAdapterPosition(),musicList.get(getAdapterPosition()));
+                    if (downloadClickListener!=null){
+                        if (getAdapterPosition()!=-1)
+                            downloadClickListener.onClick(getAdapterPosition(),getItem(getAdapterPosition()));
+                    }
 
+                }
+            });
+
+            musicDownloadProgress.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (musicDownloadProgress.getAttributeResourceId()==R.drawable.ic_pause){
+                        musicDownloadProgress.setAttributeResourceId(R.drawable.ic_play);
+
+                    }
+                    else
+                        musicDownloadProgress.setAttributeResourceId(R.drawable.ic_pause);
+
+                    notifyDataSetChanged();
                 }
             });
 

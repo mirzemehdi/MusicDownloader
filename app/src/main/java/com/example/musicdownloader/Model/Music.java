@@ -13,6 +13,7 @@ public class Music {
     private String artistName;
     private String musicName;
     private boolean isDownloaded;
+    private int downloadProgress;
 
 
 
@@ -21,6 +22,16 @@ public class Music {
         this.artistName = artistName;
         this.musicName = musicName;
         isDownloaded=false;
+        downloadProgress=0;
+    }
+
+
+    public int getDownloadProgress() {
+        return downloadProgress;
+    }
+
+    public void setDownloadProgress(int downloadProgress) {
+        this.downloadProgress = downloadProgress;
     }
 
     public boolean isDownloaded() {

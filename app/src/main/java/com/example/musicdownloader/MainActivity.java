@@ -13,11 +13,13 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.app.adprogressbarlib.AdCircleProgress;
 import com.example.musicdownloader.Adapter.PlayListAdapter;
 import com.example.musicdownloader.Interfaces.DownloadClickListener;
 import com.example.musicdownloader.Model.Music;
 import com.example.musicdownloader.ViewModel.MusicViewModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -27,10 +29,13 @@ public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.musicRecyclerView)
     RecyclerView musicRecyclerView;
-    private PlayListAdapter playListAdapter;
+    @BindView(R.id.downloadsMusicRecyclerView)
+    RecyclerView downloadsMusicRecyclerView;
+    private PlayListAdapter playListAdapter,downloadListAdapter;
     private MusicViewModel musicViewModel;
     @BindView(R.id.progressMain)
     ProgressBar progressBar;
+    List<Music> mMusicList,downloadMusicList;
 
 
     @Override
@@ -43,17 +48,10 @@ public class MainActivity extends AppCompatActivity {
 
 
         getMusics();
-        playListAdapter.setDownloadClickListener(new DownloadClickListener() {
-            @Override
-            public void onClick(int position, Music music) {
-               downloadMusic(position,music);
-
-            }
-        });
-
-
+        playListAdapter.setDownloadClickListener(this::downloadMusic);
 
     }
+
 
 
     private void downloadMusic(int position, Music music) {
@@ -63,37 +61,35 @@ public class MainActivity extends AppCompatActivity {
             return ;
         }
 
-        if (playListAdapter.getLastDownloadPos()>0){
-            Toast.makeText(this, getResources().getString(R.string.toast_music_one_download), Toast.LENGTH_SHORT).show();
-            return ;
-        }
+        musicViewModel.delete(music);
+        music.setDownloadProgress(1);
+        downloadMusicList.add(music);
+        downloadListAdapter.notifyDataSetChanged();
+
+
         int downloadTime=5000;//5 sec
         int increaseValue=100/(downloadTime/100);
         final int[] percentage = {0};
-//        playListAdapter.moveItem(position,0);
-        int updatedPos=playListAdapter.getLastDownloadPos();
-        musicRecyclerView.scrollToPosition(updatedPos);
-        playListAdapter.moveItem(position,playListAdapter.getLastDownloadPos());
-
         Handler handler=new Handler();
         handler.post(new Runnable() {
             @Override
             public void run() {
 
+                    percentage[0] = music.getDownloadProgress()+increaseValue;
+                    music.setDownloadProgress(percentage[0]);
+                    downloadListAdapter.notifyDataSetChanged();
 
 
-                boolean isUpdated=playListAdapter.updateProgressBarValue(musicRecyclerView,updatedPos, percentage[0]);
-                if (isUpdated)
-                    percentage[0] +=increaseValue;
                 if (percentage[0]<=100)
                     handler.postDelayed(this,100);
                 else {
                     music.setDownloaded(true);
-                    playListAdapter.setLastDownloadPos(playListAdapter.getLastDownloadPos()-1);
-//                    playListAdapter.moveItem(updatedPos,position);
-//                    musicRecyclerView.scrollToPosition(playListAdapter.getLastDownloadPos());
-//                    playListAdapter.notifyItemChanged(playListAdapter.getLastDownloadPos());
-                    musicViewModel.update(music);
+                    musicViewModel.insert(music);
+                    downloadMusicList.remove(music);
+                    downloadListAdapter.submitList(downloadMusicList);
+                    Toast.makeText(MainActivity.this,music.getMusicName()+" "
+                            +getResources().getString(R.string.toast_music_download_finished)
+                            , Toast.LENGTH_SHORT).show();
                 }
 
             }
@@ -104,15 +100,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getMusics() {
-        musicViewModel.getAllMusics().observe(this, new Observer<List<Music>>() {
-            @Override
-            public void onChanged(List<Music> musicList) {
-                Log.d("OnChangeddd","called");
-                playListAdapter.setMusicList(musicList);
-                musicRecyclerView.setVisibility(View.VISIBLE);
-                progressBar.setVisibility(View.INVISIBLE);
+        musicViewModel.getAllMusics().observe(this, musicList -> {
+            playListAdapter.submitList(musicList);
+            mMusicList=musicList;
+            musicRecyclerView.setVisibility(View.VISIBLE);
+            progressBar.setVisibility(View.INVISIBLE);
 
-            }
         });
     }
 
@@ -122,6 +115,16 @@ public class MainActivity extends AppCompatActivity {
         musicRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         playListAdapter=new PlayListAdapter(this);
         musicRecyclerView.setAdapter(playListAdapter);
+
+
+        downloadsMusicRecyclerView.setHasFixedSize(true);
+        downloadsMusicRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        downloadListAdapter=new PlayListAdapter(this);
+        downloadsMusicRecyclerView.setAdapter(downloadListAdapter);
+        downloadMusicList=new ArrayList<>();
+        downloadListAdapter.submitList(downloadMusicList);
+
+
 
     }
 

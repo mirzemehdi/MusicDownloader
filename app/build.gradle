@@ -55,6 +55,10 @@ dependencies {
     //Circle Progress
     implementation 'com.github.Adilhusen:circle-progress-ad-android-:1.0'
 
+    //Pagination
+    implementation 'android.arch.paging:runtime:2.1.0'
+
+
 
 
 
