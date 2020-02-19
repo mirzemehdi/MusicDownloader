@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+
         getMusics();
         playListAdapter.setDownloadClickListener(this::downloadMusic);
 
@@ -59,6 +60,19 @@ public class MainActivity extends AppCompatActivity {
 
         downloadListAdapter.setPausePlayClickListener((position, music) -> pausePlayMusic(music));
 
+    }
+
+    @Override
+    protected void onDestroy() {
+
+        //This is for remain musics which didn't complete to download
+        for (Music music: downloadMusicList){
+            if(music.getDownloadLevel()==DOWNLOAD_LEVEL_PAUSE){
+                music.setDownloadProgress(0);
+                musicViewModel.insert(music);
+            }
+        }
+        super.onDestroy();
     }
 
     private void pausePlayMusic(Music music) {

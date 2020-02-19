@@ -176,28 +176,7 @@ public class PlayListAdapter extends ListAdapter<Music, PlayListAdapter.PlayList
                 return true;
             }
         });
-            musicProgressDownloadView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Log.d("Clicked","sf");
 
-
-
-//                    if (musicDownloadProgress.getAttributeResourceId()==R.drawable.ic_pause){
-//                        musicDownloadProgress.setAttributeResourceId(R.drawable.ic_play);
-//                        getItem(getAdapterPosition()).setDownloadLevel(DOWNLOAD_LEVEL_PAUSE);
-//                        notifyDataSetChanged();
-//
-//                    }
-//                    else {
-//                        musicDownloadProgress.setAttributeResourceId(R.drawable.ic_pause);
-//                        getItem(getAdapterPosition()).setDownloadLevel(DOWNLOAD_LEVEL_RESUME);
-//                        notifyDataSetChanged();
-//                    }
-
-
-                }
-            });
 
 
 
