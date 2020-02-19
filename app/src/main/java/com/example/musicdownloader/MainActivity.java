@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.app.adprogressbarlib.AdCircleProgress;
 import com.example.musicdownloader.Adapter.PlayListAdapter;
 import com.example.musicdownloader.Interfaces.DownloadClickListener;
+import com.example.musicdownloader.Interfaces.PausePlayClickListener;
 import com.example.musicdownloader.Model.Music;
 import com.example.musicdownloader.ViewModel.MusicViewModel;
 
@@ -24,6 +25,10 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
+import static com.example.musicdownloader.Utils.Common.DOWNLOAD_LEVEL_DOWNLOADED;
+import static com.example.musicdownloader.Utils.Common.DOWNLOAD_LEVEL_PAUSE;
+import static com.example.musicdownloader.Utils.Common.DOWNLOAD_LEVEL_RESUME;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -50,13 +55,26 @@ public class MainActivity extends AppCompatActivity {
         getMusics();
         playListAdapter.setDownloadClickListener(this::downloadMusic);
 
+        //playListAdapter.setPausePlayClickListener((position, music) -> pausePlayMusic(music));
+
+        downloadListAdapter.setPausePlayClickListener((position, music) -> pausePlayMusic(music));
+
     }
 
+    private void pausePlayMusic(Music music) {
+
+        if (music.getDownloadLevel()==DOWNLOAD_LEVEL_RESUME)
+            music.setDownloadLevel(DOWNLOAD_LEVEL_PAUSE);
+        else
+            music.setDownloadLevel(DOWNLOAD_LEVEL_RESUME);
+
+        downloadListAdapter.notifyDataSetChanged();
+    }
 
 
     private void downloadMusic(int position, Music music) {
 
-        if (music.isDownloaded()){
+        if (music.getDownloadLevel()== DOWNLOAD_LEVEL_DOWNLOADED){
             Toast.makeText(this, getResources().getString(R.string.toast_music_downloaded), Toast.LENGTH_SHORT).show();
             return ;
         }
@@ -75,18 +93,26 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
 
-                    percentage[0] = music.getDownloadProgress()+increaseValue;
-                    music.setDownloadProgress(percentage[0]);
-                    downloadListAdapter.notifyDataSetChanged();
 
 
-                if (percentage[0]<=100)
-                    handler.postDelayed(this,100);
+
+                if (percentage[0]<=100) {
+
+                    if (music.getDownloadLevel()==DOWNLOAD_LEVEL_RESUME) {
+                        percentage[0] = music.getDownloadProgress() + increaseValue;
+                        music.setDownloadProgress(percentage[0]);
+                        downloadListAdapter.notifyDataSetChanged();
+                    }
+
+                    handler.postDelayed(this, 100);
+
+                }
                 else {
-                    music.setDownloaded(true);
+                    music.setDownloadLevel(DOWNLOAD_LEVEL_DOWNLOADED);
                     musicViewModel.insert(music);
                     downloadMusicList.remove(music);
-                    downloadListAdapter.submitList(downloadMusicList);
+                    downloadListAdapter.notifyDataSetChanged();
+
                     Toast.makeText(MainActivity.this,music.getMusicName()+" "
                             +getResources().getString(R.string.toast_music_download_finished)
                             , Toast.LENGTH_SHORT).show();

@@ -5,6 +5,9 @@ import androidx.room.PrimaryKey;
 
 import com.example.musicdownloader.Utils.Common;
 
+
+import static com.example.musicdownloader.Utils.Common.DOWNLOAD_LEVEL_RESUME;
+
 @Entity(tableName ="music_table" )
 public class Music {
 
@@ -12,8 +15,9 @@ public class Music {
     private int id;
     private String artistName;
     private String musicName;
-    private boolean isDownloaded;
     private int downloadProgress;
+    private int downloadLevel;
+
 
 
 
@@ -21,9 +25,11 @@ public class Music {
     public Music(String artistName, String musicName) {
         this.artistName = artistName;
         this.musicName = musicName;
-        isDownloaded=false;
+        this.downloadLevel=DOWNLOAD_LEVEL_RESUME;
         downloadProgress=0;
     }
+
+
 
 
     public int getDownloadProgress() {
@@ -34,12 +40,13 @@ public class Music {
         this.downloadProgress = downloadProgress;
     }
 
-    public boolean isDownloaded() {
-        return isDownloaded;
+
+    public void setDownloadLevel(int downloadLevel) {
+        this.downloadLevel = downloadLevel;
     }
 
-    public void setDownloaded(boolean musicDownloaded) {
-        isDownloaded = musicDownloaded;
+    public int getDownloadLevel() {
+        return downloadLevel;
     }
 
     public int getId() {

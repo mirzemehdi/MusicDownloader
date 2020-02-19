@@ -2,6 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:clickable="true"
+    android:focusable="true"
     android:layout_height="wrap_content"
 
     xmlns:custom="http://schemas.android.com/tools">
@@ -83,7 +85,7 @@
                 android:clickable="true"
                 android:padding="8dp"
                 android:elevation="4dp"
-                android:visibility="visible"
+                android:visibility="invisible"
                 android:focusable="true"
                 android:background="@drawable/circle_gradient"
                 android:src="@drawable/ic_file_download">
@@ -92,27 +94,40 @@
 
 
 
-            <com.app.adprogressbarlib.AdCircleProgress
-                android:id="@+id/row_music_download_progress"
-                android:layout_width="@dimen/row_music_imageWidthHeight"
-                android:layout_height="@dimen/row_music_imageWidthHeight"
-                android:visibility="invisible"
-                android:layout_alignParentEnd="true"
-                android:layout_margin="8dp"
-                app:adpgb_text=""
-                android:elevation="4dp"
-                app:adpgb_progress="0"
-                android:background="@drawable/circle_gradient"
-                android:layout_centerVertical="true"
-                app:adpgb_show_text="false"
-                app:adpgb_background_color="@color/colorAccent"
-                app:adpgb_finished_stroke_width="5dp"
-                app:adpgb_finished_color="@color/colorGreen"
-                app:adpgb_unfinished_color="@android:color/white"
-                app:adpgb_unfinished_stroke_width="5dp"
-                app:adpgb_inner_drawable="@drawable/ic_pause"
 
-                 />
+
+            <LinearLayout
+                android:id="@+id/progressDownloadView"
+                android:layout_width="wrap_content"
+                android:clickable="true"
+                android:focusable="true"
+                android:visibility="invisible"
+                android:layout_centerVertical="true"
+                android:layout_alignParentEnd="true"
+                android:layout_height="wrap_content">
+
+
+
+                <com.app.adprogressbarlib.AdCircleProgress
+                    android:id="@+id/row_music_download_progress"
+                    android:layout_width="@dimen/row_music_imageWidthHeight"
+                    android:layout_height="@dimen/row_music_imageWidthHeight"
+                    android:layout_margin="8dp"
+                    app:adpgb_text=""
+                    app:adpgb_progress="0"
+                    android:background="@drawable/circle_gradient"
+
+                    app:adpgb_show_text="false"
+                    app:adpgb_background_color="@color/colorAccent"
+                    app:adpgb_finished_stroke_width="5dp"
+                    app:adpgb_finished_color="@color/colorGreen"
+                    app:adpgb_unfinished_color="@android:color/white"
+                    app:adpgb_unfinished_stroke_width="5dp"
+                    app:adpgb_inner_drawable="@drawable/ic_pause"
+
+                    />
+
+            </LinearLayout>
 
         </RelativeLayout>
 
