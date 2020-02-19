@@ -7,7 +7,7 @@
 
 
   
-<img src="screenshots/screenshot1.jpeg" alt="screenshot1" height="50%" width="40%">" 
+<img src="screenshots/screenshot1.jpeg" align="center" alt="screenshot1" height="50%" width="40%">" 
 
 
 ### Installing
