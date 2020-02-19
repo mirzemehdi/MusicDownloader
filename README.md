@@ -1,8 +1,7 @@
 # Music Downloader
 
  This is an Android Application for downloading musics. Musics are just dummy list but for downloading a music 
- a logic is written in this app. It can be easily added some api for downloading. This app is written in MVVM design pattern
- using Room,LiveData,ViewModel
+ a logic is implemented in this app. It can be easily added some api for downloading. This app is written in MVVM design pattern using Room,LiveData,ViewModel
 
 
 
